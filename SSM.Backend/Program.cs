@@ -20,8 +20,6 @@ builder.Services.AddSingleton<IMongoDatabase>(options => {
     return client.GetDatabase(settings.DatabaseName);
 });
 
-
-
 builder.Services.AddAutoMapper(typeof(AutoMapperConfig));
 
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
