@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using SSM.Backend.Models;
 using SSM.Backend.Models.Dto;
-using SSM.Backend.Repositoty.IRepository;
+using SSM.Backend.Repository.IRepository;
 using System.Text.Json;
 
 namespace SSM.Backend.Controllers
@@ -22,6 +23,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin,Editor")]
         public async Task<ActionResult<Department>> CreateAsync([FromBody] DepartmentCreateDTO departmentCreateDTO)
         {
             try
@@ -53,6 +55,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<List<DepartmentDTO>>> GetAllAsync(int _start, int _end)
         {
             try
@@ -70,6 +73,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpPatch("{id:length(24)}")]
+        [Authorize(Roles = "Admin,Editor")]
         public async Task<ActionResult<DepartmentDTO>> UpdateAsync(string id, [FromBody] DepartmentDTO departmentDTO)
         {
             try
@@ -88,6 +92,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpDelete("{id:length(24)}")]
+        [Authorize(Roles = "Admin,Editor")]
         public async Task<IActionResult> DeleteDepartmentAsync(string id)
         {
             try

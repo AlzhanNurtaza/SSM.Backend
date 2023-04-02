@@ -1,7 +1,7 @@
 ﻿using MongoDB.Driver;
 using System.Linq.Expressions;
 
-namespace SSM.Backend.Repositoty.IRepository
+namespace SSM.Backend.Repository.IRepository
 {
     public interface IRepository
     {

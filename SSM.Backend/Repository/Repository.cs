@@ -4,9 +4,9 @@ using MongoDB.Driver;
 using SSM.Backend.Models;
 using System.Linq.Expressions;
 using System.Reflection;
-using static SSM.Backend.Repositoty.IRepository.IRepository;
+using static SSM.Backend.Repository.IRepository.IRepository;
 
-namespace SSM.Backend.Repositoty
+namespace SSM.Backend.Repository
 {
     public class Repository<T> : IRepository<T> where T : class
     {

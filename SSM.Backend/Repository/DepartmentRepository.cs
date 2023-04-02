@@ -1,9 +1,9 @@
 ﻿using MongoDB.Driver;
 using SSM.Backend.Models;
-using SSM.Backend.Repositoty.IRepository;
+using SSM.Backend.Repository.IRepository;
 
 
-namespace SSM.Backend.Repositoty
+namespace SSM.Backend.Repository
 {
     public class DepartmentRepository :  Repository<Department>, IDepartmentRepository
     {
