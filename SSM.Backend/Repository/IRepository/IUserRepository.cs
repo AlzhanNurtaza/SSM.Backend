@@ -1,4 +1,5 @@
-﻿using SSM.Backend.Models.Dto;
+﻿using Microsoft.AspNetCore.Identity;
+using SSM.Backend.Models.Dto;
 
 namespace SSM.Backend.Repository.IRepository
 {
@@ -6,7 +7,7 @@ namespace SSM.Backend.Repository.IRepository
     {
         Task<bool> IsUniqueUserAsync(string username);
         Task<LoginResponseDTO> LoginAsync(LoginRequestDTO loginRequestDTO);
-        Task<UserDTO> RegisterAsync(RegistrationRequestDTO registerationRequestDTO);
+        Task<IdentityResult> RegisterAsync(RegistrationRequestDTO registerationRequestDTO, string confirmationUrl, string returnUrl);
         Task CreateRoleAsync(string roleName);
     }
 }

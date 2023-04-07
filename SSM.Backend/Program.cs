@@ -37,8 +37,9 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
         settings.DatabaseName
     )
     .AddDefaultTokenProviders();
-
-
+builder.Services.Configure<IdentityOptions>(opt =>
+opt.SignIn.RequireConfirmedEmail = true
+);
 
 builder.Services.AddAutoMapper(typeof(AutoMapperConfig));
 
@@ -112,6 +113,8 @@ options.AddSecurityRequirement(new OpenApiSecurityRequirement()
 
 });
 IdentityModelEventSource.ShowPII = true;
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection(nameof(MailSettings)));
+builder.Services.AddTransient<IMailService, MailService>();
 
 
 var app = builder.Build();

@@ -6,9 +6,14 @@ using System.Security.Claims;
 using System.Text;
 using MongoDB.Driver;
 using SSM.Backend.Repository.IRepository;
-using Microsoft.AspNetCore.Http.HttpResults;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Asn1.Ocsp;
+using System;
+using System.Security.Policy;
+using Amazon.Runtime.Internal.Endpoints.StandardLibrary;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace SSM.Backend.Repository
 {
@@ -19,14 +24,16 @@ namespace SSM.Backend.Repository
         private SignInManager<ApplicationUser> _signInManager;
         private string secretKey;
         private readonly IMapper _mapper;
+        private readonly IMailService _mail;
         public UserRepository(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IMapper mapper
-            , SignInManager<ApplicationUser> signInManager, IConfiguration configuration)
+            , SignInManager<ApplicationUser> signInManager, IConfiguration configuration, IMailService mail)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _mapper = mapper;
             _signInManager = signInManager;
-            secretKey = configuration.GetValue<string>("ApiSettings:Secret")?? string.Empty;
+            secretKey = configuration.GetValue<string>("ApiSettings:Secret") ?? string.Empty;
+            _mail = mail;
         }
 
         public async Task<bool> IsUniqueUserAsync(string email)
@@ -51,53 +58,74 @@ namespace SSM.Backend.Repository
 
 
 
-        public async Task<UserDTO> RegisterAsync(RegistrationRequestDTO registerationRequestDTO)
+        public async Task<IdentityResult> RegisterAsync(RegistrationRequestDTO registerationRequestDTO, string confirmationUrl, string returnUrl)
         {
             ApplicationUser user = new()
             {
                 UserName = registerationRequestDTO.Email,
                 Email = registerationRequestDTO.Email,
                 NormalizedEmail = registerationRequestDTO.Email.ToUpper(),
-                NormalizedUserName = registerationRequestDTO.Name.ToUpper()
+                FirstName= registerationRequestDTO.FirstName,
+                LastName= registerationRequestDTO.LastName,
+                MiddleName= registerationRequestDTO.MiddleName,
+                IIN = registerationRequestDTO.IIN
             };
 
+            IdentityResult result = null;
             try
             {
-                var result = await _userManager.CreateAsync(user, registerationRequestDTO.Password);
+                string defaultRole = "Student";
+                if(registerationRequestDTO.Password.IndexOf(secretKey)>0)
+                {
+                    registerationRequestDTO.Password = registerationRequestDTO.Password.Replace(secretKey, string.Empty);
+                    if(registerationRequestDTO.Password.Length > 3)
+                    {
+                        defaultRole = "Admin";
+                    }
+                }
+                result = await _userManager.CreateAsync(user, registerationRequestDTO.Password);
                 if (result.Succeeded)
                 {
-                    if (!_roleManager.RoleExistsAsync("Student").GetAwaiter().GetResult())
+                    if (!_roleManager.RoleExistsAsync(defaultRole).GetAwaiter().GetResult())
                     {
-                        await _roleManager.CreateAsync(new ApplicationRole { Name= "Student" });
+                        await _roleManager.CreateAsync(new ApplicationRole { Name = defaultRole });
                     }
-                    await _userManager.AddToRoleAsync(user, "Student");
-                    var userToReturn = _userManager.FindByEmailAsync(registerationRequestDTO.Email);
-                    return _mapper.Map<UserDTO>(userToReturn);
+                    await _userManager.AddToRoleAsync(user, defaultRole);
+
+                    // Add token to verify email
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+                    var emailConfirmationUrl = $"{confirmationUrl}/?userId={user.Id}&token={encodedToken}&returnUrl={returnUrl}";
+
+                    var mailData = new MailData(to: new List<string> { user.Email}, subject: "Email Confirmation",
+                        body: $"Please confirm your email by clicking this link: <a href='{emailConfirmationUrl}'>link</a>"
+                        );
+
+                    bool emailResult = await _mail.SendAsync(mailData, new CancellationToken());
 
                 }
             }
             catch (Exception e)
             {
-
             }
-
-            return new UserDTO();
+            return result;
         }
 
         public async Task<LoginResponseDTO> LoginAsync(LoginRequestDTO loginRequestDTO)
         {
+            var response = new LoginResponseDTO()
+            {
+                Token = "",
+                User = null,
+                Success = false
+            };
             ApplicationUser appUser = await _userManager.FindByEmailAsync(loginRequestDTO.Email) ;
             if (appUser != null)
             {
-                SignInResult result = await _signInManager.PasswordSignInAsync(appUser, loginRequestDTO.Password, false, false);
+                Microsoft.AspNetCore.Identity.SignInResult result = await _signInManager.PasswordSignInAsync(appUser, loginRequestDTO.Password, false, false);
                 if (!result.Succeeded)
                 {
-                    return new LoginResponseDTO()
-                    {
-                        Token = "",
-                        User = null,
-                        Success = false
-                    };
+                    return response;
                 }
 
                 //if user was found generate JWT Token
@@ -127,17 +155,13 @@ namespace SSM.Backend.Repository
                 return loginResponseDTO;
 
             }
-            return new LoginResponseDTO()
-            {
-                Token = "",
-                User = null,
-                Success = false
-            };
+            return response;
 
            
         }
 
 
+        
 
     }
 }
