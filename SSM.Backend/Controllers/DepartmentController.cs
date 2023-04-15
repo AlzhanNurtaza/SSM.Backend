@@ -55,7 +55,6 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpGet]
-        [Authorize]
         public async Task<ActionResult<List<DepartmentDTO>>> GetAllAsync(int _start, int _end)
         {
             try

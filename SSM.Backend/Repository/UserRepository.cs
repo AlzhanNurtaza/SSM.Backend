@@ -159,9 +159,31 @@ namespace SSM.Backend.Repository
 
            
         }
+        public async Task<ApplicationUser> FindByEmailAsync(string email)
+        {
+            return await _userManager.FindByEmailAsync(email);
+        }
+
+        public async Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user)
+        {
+            string token =  await _userManager.GeneratePasswordResetTokenAsync(user);
+            var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+            var mailData = new MailData(to: new List<string> { user.Email }, subject: "Password Reset",
+                body: $"Your reset token is: {encodedToken}"
+                );
+
+            bool emailResult = await _mail.SendAsync(mailData, new CancellationToken());
+            return token;
+        }
+
+        public async Task<IdentityResult> ResetPasswordAsync(ApplicationUser user, string token, string newPassword)
+        {
+            return await _userManager.ResetPasswordAsync(user, token, newPassword);
+        }
 
 
-        
+
 
     }
 }

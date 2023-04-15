@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using SSM.Backend.Models;
 using SSM.Backend.Models.Dto;
+using SSM.Backend.Repository;
 using SSM.Backend.Repository.IRepository;
 using System.Net;
 using System.Text;
@@ -46,6 +47,10 @@ namespace SSM.Backend.Controllers
         public async Task<IActionResult> LoginAsync([FromBody] LoginRequestDTO model)
         {
             var loginResponse = await _userRepo.LoginAsync(model);
+            if(!loginResponse.Success)
+            {
+                return BadRequest(loginResponse);
+            }
             return Ok(loginResponse);
         }
 
@@ -88,5 +93,56 @@ namespace SSM.Backend.Controllers
             return BadRequest(result.Errors);
         }
 
+        // POST api/userAuth/passwordForgot
+        [HttpPost("PasswordForgot")]
+        public async Task<IActionResult> ForgotPassword([FromBody] PasswordResetRequestModel passwordResetRequestModel)
+        {
+            // Validate input
+            if (passwordResetRequestModel == null)
+            {
+                return BadRequest(new { error = "Invalid request" });
+            }
+
+            // Find user by email
+            var user = await _userRepo.FindByEmailAsync(passwordResetRequestModel.Email);
+            if (user == null)
+            {
+                // Don't reveal that the user does not exist
+                return Ok(new { message = "Password reset link sent successfully" });
+            }
+
+            // Generate password reset token
+            var resetToken = await _userRepo.GeneratePasswordResetTokenAsync(user);
+
+            // Send password reset link to user's email
+            // You can implement your own logic for sending the password reset link, such as using an email service
+            // In this example, we're just returning the password reset token for demonstration purposes
+            return Ok(new { ResetToken = resetToken });
+        }
+
+        // POST api/userAuth/passwordReset
+        [HttpPost("PasswordReset")]
+        public async Task<IActionResult> ResetPassword([FromBody] PasswordResetDTO passwordResetModel)
+        {
+            // Validate input
+            if (passwordResetModel == null)
+            {
+                return BadRequest(new { message = "Invalid request" });
+            }
+
+            // Find user by email
+            var user = await _userRepo.FindByEmailAsync(passwordResetModel.Email);
+            if (user == null)
+            {
+                // Don't reveal that the user does not exist
+                return Ok(new { message = "Password reset failed" });
+            }
+
+            // Reset password using password reset token
+            var resetResult = await _userRepo.ResetPasswordAsync(user, passwordResetModel.Token, passwordResetModel.Password);
+            return Ok(resetResult);
+        }
+    
+
     }
-}
+    }
