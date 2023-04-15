@@ -65,10 +65,12 @@ namespace SSM.Backend.Repository
                 UserName = registerationRequestDTO.Email,
                 Email = registerationRequestDTO.Email,
                 NormalizedEmail = registerationRequestDTO.Email.ToUpper(),
-                FirstName= registerationRequestDTO.FirstName,
-                LastName= registerationRequestDTO.LastName,
-                MiddleName= registerationRequestDTO.MiddleName,
-                IIN = registerationRequestDTO.IIN
+                FirstName = char.ToUpper(registerationRequestDTO.FirstName[0]) + registerationRequestDTO.FirstName.Substring(1).ToLower(),
+                LastName= char.ToUpper(registerationRequestDTO.LastName[0]) + registerationRequestDTO.LastName.Substring(1).ToLower(),
+                MiddleName= char.ToUpper(registerationRequestDTO.MiddleName[0]) + registerationRequestDTO.MiddleName.Substring(1).ToLower(),
+                IIN = registerationRequestDTO.IIN,
+                Department = registerationRequestDTO.Department,
+                Image = registerationRequestDTO.Image
             };
 
             IdentityResult result = null;

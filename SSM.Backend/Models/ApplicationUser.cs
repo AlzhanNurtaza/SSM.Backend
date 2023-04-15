@@ -10,7 +10,7 @@ namespace SSM.Backend.Models
         public string LastName { get; set; } = string.Empty;
         public string MiddleName { get; set; } = string.Empty;
         public string IIN { get; set; }
-        public string Department { get; set; }
+        public Department Department { get; set; }
         public string Image { get; set; }
     }
 }
