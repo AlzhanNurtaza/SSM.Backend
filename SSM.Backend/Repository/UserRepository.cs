@@ -184,8 +184,25 @@ namespace SSM.Backend.Repository
             return await _userManager.ResetPasswordAsync(user, token, newPassword);
         }
 
+        public async Task<List<ApplicationUser>> GetAllAsync(int _start = 0, int _end = 1)
+        {
+            if (_end > 100)
+            {
+                _end = 100;
+            }
+            var users = _userManager.Users.Skip(_start).Take(_end);
+            return users.ToList();
+        }
 
+        public async Task<ApplicationUser> GetUserAsync(string id)
+        {
+            return await _userManager.FindByIdAsync(id);
 
-
+        }
+        public async Task<IdentityResult> UpdateAsync(string id, ApplicationUser entity)
+        {
+            var result = await _userManager.UpdateAsync(entity);
+            return result;
+        }
     }
 }

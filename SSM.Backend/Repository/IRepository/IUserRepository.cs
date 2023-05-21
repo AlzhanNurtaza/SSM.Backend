@@ -13,5 +13,9 @@ namespace SSM.Backend.Repository.IRepository
         Task<ApplicationUser> FindByEmailAsync(string email);
         Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user);
         Task<IdentityResult> ResetPasswordAsync(ApplicationUser user, string token, string newPassword);
+        Task<List<ApplicationUser>> GetAllAsync(int _start = 0, int _end = 1);
+        Task<ApplicationUser> GetUserAsync(string id);
+
+        Task<IdentityResult> UpdateAsync(string id, ApplicationUser entity);
     }
 }

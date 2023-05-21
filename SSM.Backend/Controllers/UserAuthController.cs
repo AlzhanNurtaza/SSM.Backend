@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,16 +14,18 @@ using System.Xml.Linq;
 
 namespace SSM.Backend.Controllers
 {
-    [Route("api/userAuth")]
+    [Route("api/UserAuth")]
     [ApiController]
     public class UserAuthController : ControllerBase
     {
         private readonly IUserRepository _userRepo;
         private readonly UserManager<ApplicationUser> _userManager;
-        public UserAuthController(IUserRepository userRepo, UserManager<ApplicationUser> userManager)
+        private readonly IMapper _mapper;
+        public UserAuthController(IUserRepository userRepo, UserManager<ApplicationUser> userManager, IMapper mapper)
         {
             _userRepo = userRepo;
             _userManager = userManager;
+            _mapper = mapper;
         }
 
         [HttpPost("Register")]
@@ -142,7 +145,44 @@ namespace SSM.Backend.Controllers
             var resetResult = await _userRepo.ResetPasswordAsync(user, passwordResetModel.Token, passwordResetModel.Password);
             return Ok(resetResult);
         }
-    
+
+        [HttpGet]
+        [Authorize]
+        public async Task<List<UserDTO>> GetUsers(int _start, int _end)
+        {
+            return _mapper.Map<List<UserDTO>>(await _userRepo.GetAllAsync(_start,_end));
+        }
+
+        [HttpGet("{id:length(36)}",Name ="GetUser")]
+        [Authorize]
+        public async Task<ActionResult<UserDTO>> GetUser(string id)
+        {
+            var user= await _userRepo.GetUserAsync(id);
+            if(user == null)
+            {
+                return BadRequest(new { error = "User Not Found" });
+            }
+            return _mapper.Map<UserDTO>(user);
+        }
+
+        [HttpPatch("{id:length(36)}")]
+        [Authorize]
+        public async Task<ActionResult<UserDTO>> UpdateAsync(string id, [FromBody] UserDTO userDTO)
+        {
+            try
+            {
+                if (userDTO == null || id != userDTO.Id)
+                {
+                    return BadRequest(new { message = "userDTO cannot be null or different Id provided" });
+                }
+                var user = await _userRepo.UpdateAsync(id, _mapper.Map<ApplicationUser>(userDTO));
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
     }
-    }
+ }
