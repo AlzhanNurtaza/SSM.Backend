@@ -7,11 +7,11 @@ namespace SSM.Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MailKitDemoController : ControllerBase
+    public class EmailContoller : ControllerBase
     {
         private readonly IMailService _mail;
 
-        public MailKitDemoController(IMailService mail)
+        public EmailContoller(IMailService mail)
         {
             _mail = mail;
         }

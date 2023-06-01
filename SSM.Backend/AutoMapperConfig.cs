@@ -10,7 +10,6 @@ namespace SSM.Backend
         {
             CreateMap<Department, DepartmentDTO>().ReverseMap();
             CreateMap<Department, DepartmentCreateDTO>().ReverseMap();
-
             CreateMap<ApplicationUser, UserDTO>().ReverseMap();
         }
     }

@@ -1,12 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
 using SSM.Backend.Models;
 using SSM.Backend.Models.Dto;
 using SSM.Backend.Repository.IRepository;
-using System.Text.Json;
 
 namespace SSM.Backend.Controllers
 {
