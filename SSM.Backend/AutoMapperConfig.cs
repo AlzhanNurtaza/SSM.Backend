@@ -12,6 +12,8 @@ namespace SSM.Backend
             CreateMap<Department, DepartmentCreateDTO>().ReverseMap();
             CreateMap<Course, CourseDTO>().ReverseMap();
             CreateMap<Course, CourseCreateDTO>().ReverseMap();
+            CreateMap<Speciality, SpecialityDTO>().ReverseMap();
+            CreateMap<Speciality, SpecialityCreateDTO>().ReverseMap();
             CreateMap<ApplicationUser, UserDTO>().ReverseMap();
         }
     }
