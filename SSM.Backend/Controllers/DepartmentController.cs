@@ -20,7 +20,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin,Editor")]
+        //[Authorize(Roles = "Admin,Editor")]
         public async Task<ActionResult<Department>> CreateAsync([FromBody] DepartmentCreateDTO departmentCreateDTO)
         {
             try
@@ -52,11 +52,13 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<DepartmentDTO>>> GetAllAsync(int _start, int _end)
+        public async Task<ActionResult<List<DepartmentDTO>>> GetAllAsync(int _start, int _end, string? name_like = "",string? title_like="")
         {
             try
             {
-                List<Department> departments = await _db.GetAllAsync(_start:_start,_end:_end);
+                string nameFilter = name_like == string.Empty ? "" : $"Name={name_like}";
+                string titleFilter = title_like == string.Empty ? "" : $"Name={title_like}";
+                List<Department> departments = await _db.GetAllAsync(_start:_start,_end:_end, nameFilter, titleFilter);
                 long total = await _db.GetCount();
                 Response.Headers.Add("x-total-count", $"{total}");
                 Response.Headers.Add("Access-Control-Expose-Headers", "x-total-count");
@@ -69,7 +71,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpPatch("{id:length(24)}")]
-        [Authorize(Roles = "Admin,Editor")]
+        //[Authorize(Roles = "Admin,Editor")]
         public async Task<ActionResult<DepartmentDTO>> UpdateAsync(string id, [FromBody] DepartmentDTO departmentDTO)
         {
             try
@@ -88,7 +90,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpDelete("{id:length(24)}")]
-        [Authorize(Roles = "Admin,Editor")]
+        //[Authorize(Roles = "Admin,Editor")]
         public async Task<IActionResult> DeleteDepartmentAsync(string id)
         {
             try

@@ -44,6 +44,7 @@ opt.SignIn.RequireConfirmedEmail = true
 builder.Services.AddAutoMapper(typeof(AutoMapperConfig));
 
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddCors(options =>
@@ -52,7 +53,8 @@ builder.Services.AddCors(options =>
                           policy =>
                           {
                               policy.WithOrigins("http://example.com",
-                                                  "http://localhost:3000")
+                                                  "http://localhost:3000",
+                                                  "http://127.0.0.1:5173")
                                                   .AllowAnyHeader()
                                                   .AllowAnyMethod();
                           });

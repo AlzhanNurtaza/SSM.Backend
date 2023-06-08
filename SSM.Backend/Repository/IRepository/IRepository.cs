@@ -7,7 +7,7 @@ namespace SSM.Backend.Repository.IRepository
     {
         public interface IRepository<T> where T : class
         {
-            Task<List<T>> GetAllAsync(int _start = 0, int _end = 1);
+            Task<List<T>> GetAllAsync(int _start = 0, int _end = 1, string? filterMain="",string? filterAuto = "");
             Task<long> GetCount();
             Task<T> GetAsync(string id);
             Task<T> CreateAsync(T entity);

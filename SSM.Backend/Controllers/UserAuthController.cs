@@ -147,8 +147,8 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpGet]
-        [Authorize]
-        public async Task<List<UserDTO>> GetUsers(int _start, int _end)
+        //[Authorize]
+        public async Task<List<UserDTO>> GetUsers(int _start=0, int _end=25)
         {
             return _mapper.Map<List<UserDTO>>(await _userRepo.GetAllAsync(_start,_end));
         }
