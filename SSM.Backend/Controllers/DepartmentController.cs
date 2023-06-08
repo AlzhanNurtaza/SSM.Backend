@@ -21,29 +21,29 @@ namespace SSM.Backend.Controllers
 
         [HttpPost]
         //[Authorize(Roles = "Admin,Editor")]
-        public async Task<ActionResult<Department>> CreateAsync([FromBody] DepartmentCreateDTO departmentCreateDTO)
+        public async Task<ActionResult<Department>> CreateAsync([FromBody] DepartmentCreateDTO createDTO)
         {
             try
             {
-                if(departmentCreateDTO == null)
+                if(createDTO == null)
                 {
-                    return BadRequest(new { message = "departmentCreateDTO cannot be null" });
+                    return BadRequest(new { message = "createDTO cannot be null" });
                 }
-                Department newDepartment = await _db.CreateAsync(_mapper.Map<Department>(departmentCreateDTO));
-                return CreatedAtAction("Get", new { id = newDepartment.Id }, newDepartment);
+                Department newData = await _db.CreateAsync(_mapper.Map<Department>(createDTO));
+                return CreatedAtAction("Get", new { id = newData.Id }, newData);
             }
             catch(Exception ex)
             {
                 return BadRequest(new {message = ex.Message});
             }
         }
-        [HttpGet("{id:length(24)}",Name = "GetDepartment")]
+        [HttpGet("{id:length(24)}")]
         public async Task<ActionResult<DepartmentDTO>> GetAsync(string id)
         {
             try
             {
-                Department department= await _db.GetAsync(id);
-                return Ok(_mapper.Map<DepartmentDTO>(department));
+                var data= await _db.GetAsync(id);
+                return Ok(_mapper.Map<DepartmentDTO>(data));
             }
             catch (Exception ex)
             {
@@ -58,11 +58,11 @@ namespace SSM.Backend.Controllers
             {
                 string nameFilter = name_like == string.Empty ? "" : $"Name={name_like}";
                 string titleFilter = title_like == string.Empty ? "" : $"Name={title_like}";
-                List<Department> departments = await _db.GetAllAsync(_start:_start,_end:_end, nameFilter, titleFilter);
+                var datas = await _db.GetAllAsync(_start:_start,_end:_end, nameFilter, titleFilter);
                 long total = await _db.GetCount();
                 Response.Headers.Add("x-total-count", $"{total}");
                 Response.Headers.Add("Access-Control-Expose-Headers", "x-total-count");
-                return Ok(_mapper.Map<List<DepartmentDTO>>(departments));
+                return Ok(_mapper.Map<List<DepartmentDTO>>(datas));
             }
             catch(Exception ex) 
             {
@@ -72,16 +72,16 @@ namespace SSM.Backend.Controllers
 
         [HttpPatch("{id:length(24)}")]
         //[Authorize(Roles = "Admin,Editor")]
-        public async Task<ActionResult<DepartmentDTO>> UpdateAsync(string id, [FromBody] DepartmentDTO departmentDTO)
+        public async Task<ActionResult<DepartmentDTO>> UpdateAsync(string id, [FromBody] DepartmentDTO dataDTO)
         {
             try
             {
-                if(departmentDTO == null || id != departmentDTO.Id)
+                if(dataDTO == null || id != dataDTO.Id)
                 {
-                    return BadRequest(new { message = "departmentDTO cannot be null or different Id provided" });
+                    return BadRequest(new { message = "dataDTO cannot be null or different Id provided" });
                 }
-                var department = await _db.UpdateAsync(id, _mapper.Map<Department>(departmentDTO));
-                return Ok(_mapper.Map<DepartmentDTO>(department));
+                var data = await _db.UpdateAsync(id, _mapper.Map<Department>(dataDTO));
+                return Ok(_mapper.Map<DepartmentDTO>(data));
             }
             catch(Exception ex)
             {
