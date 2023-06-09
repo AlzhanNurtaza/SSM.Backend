@@ -9,6 +9,7 @@ namespace SSM.Backend.Repository.IRepository
         {
             Task<List<T>> GetAllAsync(int _start = 0, int _end = 1, string? filterMain="",string? filterAuto = "");
             Task<long> GetCount();
+            Task<bool> IsUnique(string fieldName, string value);
             Task<T> GetAsync(string id);
             Task<T> CreateAsync(T entity);
             Task RemoveAsync(string id);

@@ -29,6 +29,11 @@ namespace SSM.Backend.Controllers
                 {
                     return BadRequest(new { message = "createDTO cannot be null" });
                 }
+                bool isUnique = await _db.IsUnique("Name", createDTO.Name);
+                if (!isUnique)
+                {
+                    return BadRequest(new { message = "Name already exists" });
+                }
                 var newData = await _db.CreateAsync(_mapper.Map<Group>(createDTO));
                 return CreatedAtAction("Get", new { id = newData.Id }, newData);
             }
