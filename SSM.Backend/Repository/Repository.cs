@@ -63,10 +63,14 @@ namespace SSM.Backend.Repository
             return await _collection.Find(filter).CountDocumentsAsync();
         }
 
-        public async Task<bool> IsUnique(string fieldName, string value)
+        public async Task<bool> IsUnique(string fieldName, string value, string? id = "")
         {
             var result = true;
             var filter = Builders<T>.Filter.Eq(fieldName, value);
+            if(!string.IsNullOrEmpty(id))
+            {
+                filter = filter & Builders<T>.Filter.Ne("Id", id);
+            }
             long count = await _collection.Find(filter).CountAsync();
             if(count > 0)
             {

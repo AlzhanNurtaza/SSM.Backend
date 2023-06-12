@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SSM.Backend.Models;
 using SSM.Backend.Models.Dto;
@@ -84,6 +85,11 @@ namespace SSM.Backend.Controllers
                 if(dataDTO == null || id != dataDTO.Id)
                 {
                     return BadRequest(new { message = "dataDTO cannot be null or different Id provided" });
+                }
+                bool isUnique = await _db.IsUnique("Name", dataDTO.Name,id);
+                if (!isUnique)
+                {
+                    return BadRequest(new { message = "Name already exists" });
                 }
                 var data = await _db.UpdateAsync(id, _mapper.Map<Group>(dataDTO));
                 return Ok(_mapper.Map<GroupDTO>(data));
