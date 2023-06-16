@@ -18,6 +18,8 @@ namespace SSM.Backend
             CreateMap<Group, GroupCreateDTO>().ReverseMap();
             CreateMap<Classroom, ClassroomDTO>().ReverseMap();
             CreateMap<Classroom, ClassroomCreateDTO>().ReverseMap();
+            CreateMap<Enrollment, EnrollmentDTO>().ReverseMap();
+            CreateMap<Enrollment, EnrollmentCreateDTO>().ReverseMap();
             CreateMap<ApplicationUser, UserDTO>().ReverseMap();
         }
     }
