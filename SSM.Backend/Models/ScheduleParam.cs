@@ -14,5 +14,6 @@ namespace SSM.Backend.Models
         public Schedule? value { get; set; } = null;
         public DateTime startDate { get; set; }
         public DateTime endDate { get; set; }
+        
     }
 }

@@ -45,6 +45,8 @@ namespace SSM.Backend.Controllers
                 insertData.RecurrenceRule = eventData.RecurrenceRule;
                 //insertData.RecurrenceID = eventData.RecurrenceID;
                 //insertData.RecurrenceException = eventData.RecurrenceException;
+                insertData.ClassroomId = eventData.ClassroomId;         
+                insertData.EnrollmentId=eventData.EnrollmentId;
 
                 await _db.CreateAsync(insertData);
             }
@@ -63,7 +65,8 @@ namespace SSM.Backend.Controllers
                     updateData.RecurrenceRule = eventData.RecurrenceRule;
                     //updateData.RecurrenceID = eventData.RecurrenceID;
                     //updateData.RecurrenceException = eventData.RecurrenceException;
-
+                    updateData.ClassroomId = eventData.ClassroomId;
+                    updateData.EnrollmentId = eventData.EnrollmentId;
                     await _db.UpdateAsync(eventData.Id,updateData);
                 }
             }
