@@ -35,18 +35,7 @@ namespace SSM.Backend.Controllers
             if (param.action == "insert" || (param.action == "batch" && param.added.Count > 0))
             {
                 ScheduleCreateDTO eventData = (param.action == "insert") ? _mapper.Map<ScheduleCreateDTO>( param.value ) : param.added[0];
-                Schedule insertData = new Schedule();
-                insertData.StartTime = Convert.ToDateTime(eventData.StartTime).ToLocalTime();
-                insertData.EndTime = Convert.ToDateTime(eventData.EndTime).ToLocalTime();
-                insertData.Subject = eventData.Subject;
-                insertData.IsAllDay = eventData.IsAllDay;
-                //insertData.Location = eventData.Location;
-                insertData.Description = eventData.Description;
-                insertData.RecurrenceRule = eventData.RecurrenceRule;
-                //insertData.RecurrenceID = eventData.RecurrenceID;
-                //insertData.RecurrenceException = eventData.RecurrenceException;
-                insertData.ClassroomId = eventData.ClassroomId;         
-                insertData.EnrollmentId=eventData.EnrollmentId;
+                Schedule insertData = _mapper.Map<Schedule>(eventData);
 
                 await _db.CreateAsync(insertData);
             }
@@ -56,18 +45,7 @@ namespace SSM.Backend.Controllers
                 Schedule updateData = await _db.GetAsync(eventData.Id);
                 if (updateData != null)
                 {
-                    updateData.StartTime = Convert.ToDateTime(eventData.StartTime).ToLocalTime();
-                    updateData.EndTime = Convert.ToDateTime(eventData.EndTime).ToLocalTime();
-                    updateData.Subject = eventData.Subject;
-                    updateData.IsAllDay = eventData.IsAllDay;
-                    //updateData.Location = eventData.Location;
-                    updateData.Description = eventData.Description;
-                    updateData.RecurrenceRule = eventData.RecurrenceRule;
-                    //updateData.RecurrenceID = eventData.RecurrenceID;
-                    //updateData.RecurrenceException = eventData.RecurrenceException;
-                    updateData.ClassroomId = eventData.ClassroomId;
-                    updateData.EnrollmentId = eventData.EnrollmentId;
-                    await _db.UpdateAsync(eventData.Id,updateData);
+                    await _db.UpdateAsync(eventData.Id, eventData);
                 }
             }
             

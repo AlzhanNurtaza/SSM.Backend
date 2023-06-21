@@ -16,5 +16,11 @@ namespace SSM.Backend.Models
         public bool IsAllDay { get; set; } = false;
         public string? Description { get; set; } = string.Empty;
         public string? RecurrenceRule { get; set; }
+        public string EnrollmentName { get; set; }
+        public string GroupsName{ get; set; }
+        public int StudentCount { get; set; }
+        public string CourseName { get; set; }
+        public int SeatCount { get; set; }
+        public string InstructorName { get; set; }
     }
 }
