@@ -25,14 +25,14 @@ namespace SSM.Backend.Controllers
         [HttpGet]
         public async Task<List<Schedule>> LoadData()
         {
-            return await _db.GetAllScheduleAsync(null, null);
+            return await _db.GetAllScheduleAsync(null, null,null);
         }
 
 
         [HttpPost, HttpPut, HttpDelete]
         public async Task<IActionResult> Batch([FromBody] ScheduleParam param)
         {
-            if (param.action == "insert" || (param.action == "batch" && param.added.Count > 0))
+           if (param.action == "insert" || (param.action == "batch" && param.added.Count > 0))
             {
                 ScheduleCreateDTO eventData = (param.action == "insert") ? _mapper.Map<ScheduleCreateDTO>( param.value ) : param.added[0];
                 Schedule insertData = _mapper.Map<Schedule>(eventData);
@@ -56,8 +56,7 @@ namespace SSM.Backend.Controllers
                     await _db.RemoveAsync(events.Id);
                 }
             }
-
-            var result = await _db.GetAllScheduleAsync(null,null);
+            var result = await _db.GetAllScheduleAsync(null,null,param.where);
 
             var options = new JsonSerializerOptions
             {

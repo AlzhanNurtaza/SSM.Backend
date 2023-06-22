@@ -22,5 +22,6 @@ namespace SSM.Backend.Models
         public string CourseName { get; set; }
         public int SeatCount { get; set; }
         public string InstructorName { get; set; }
+        public string ClassroomName { get; set; }
     }
 }

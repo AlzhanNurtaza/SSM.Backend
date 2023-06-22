@@ -13,15 +13,24 @@ namespace SSM.Backend.Repository
             _db = db.GetCollection<Schedule>(typeof(Schedule).Name);
         }
 
-       public async Task<List<Schedule>> GetAllScheduleAsync(DateTime? startDate, DateTime? endDate)
+       public async Task<List<Schedule>> GetAllScheduleAsync(DateTime? startDate, DateTime? endDate, List<ScheduleFilterParam>? where)
         {
             var filter = Builders<Schedule>.Filter.Empty;
             if (startDate != null || endDate != null)
             {
                 filter = Builders<Schedule>.Filter.And(
                 Builders<Schedule>.Filter.Gte("StartTime", startDate),
-                Builders<Schedule>.Filter.Lte("StartTime", endDate)
-            );
+                Builders<Schedule>.Filter.Lte("StartTime", endDate));
+            }
+            if(where != null && where.Count>0)
+            {
+                foreach(var item in where)
+                {
+                    filter &= Builders<Schedule>.Filter.And(
+                        Builders<Schedule>.Filter.Regex(item.field, new BsonRegularExpression($".*{item.value}.*", "i"))
+                    );
+                }
+                
             }
             
             return await _db.Find(filter).ToListAsync();
