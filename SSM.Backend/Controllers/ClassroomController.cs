@@ -57,13 +57,13 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<ClassroomDTO>>> GetAllAsync(int _start, int _end, string? name_like = "",string? title_like="")
+        public async Task<ActionResult<List<ClassroomDTO>>> GetAllAsync(int _start, int _end, [FromQuery(Name = "$filter")] string? filter,string? name_like = "",string? title_like="")
         {
             try
             {
                 string nameFilter = name_like == string.Empty ? "" : $"Name={name_like}";
                 string titleFilter = title_like == string.Empty ? "" : $"Name={title_like}";
-                var datas = await _db.GetAllAsync(_start:_start,_end:_end, nameFilter, titleFilter);
+                var datas = await _db.GetAllClassroomsAsync(_start:_start,_end:_end, filter, nameFilter, titleFilter);
                 long total = await _db.GetCount();
                 Response.Headers.Add("x-total-count", $"{total}");
                 Response.Headers.Add("Access-Control-Expose-Headers", "x-total-count");
