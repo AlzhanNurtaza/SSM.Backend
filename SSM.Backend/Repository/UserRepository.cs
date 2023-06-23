@@ -71,40 +71,35 @@ namespace SSM.Backend.Repository
                 MiddleName= char.ToUpper(registerationRequestDTO.MiddleName[0]) + registerationRequestDTO.MiddleName.Substring(1).ToLower(),
                 IIN = registerationRequestDTO.IIN,
                 Department = registerationRequestDTO.Department,
-                Image = registerationRequestDTO.Image
+                Image = registerationRequestDTO.Image,
+                Role = "Student"
             };
 
             IdentityResult result = null;
             try
             {
-                string defaultRole = "Student";
-                if(registerationRequestDTO.Password.IndexOf(secretKey)>0)
-                {
-                    registerationRequestDTO.Password = registerationRequestDTO.Password.Replace(secretKey, string.Empty);
-                    if(registerationRequestDTO.Password.Length > 3)
-                    {
-                        defaultRole = "Admin";
-                    }
-                }
+
                 result = await _userManager.CreateAsync(user, registerationRequestDTO.Password);
                 if (result.Succeeded)
                 {
-                    if (!_roleManager.RoleExistsAsync(defaultRole).GetAwaiter().GetResult())
-                    {
-                        await _roleManager.CreateAsync(new ApplicationRole { Name = defaultRole });
-                    }
-                    await _userManager.AddToRoleAsync(user, defaultRole);
 
                     // Add token to verify email
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-                    var emailConfirmationUrl = $"{confirmationUrl}/?userId={user.Id}&token={encodedToken}&returnUrl={returnUrl}";
+                    //var emailConfirmationUrl = $"{confirmationUrl}/?userId={user.Id}&token={encodedToken}&returnUrl={returnUrl}";
 
-                    var mailData = new MailData(to: new List<string> { user.Email}, subject: "Email Confirmation",
-                        body: $"Please confirm your email by clicking this link: <a href='{emailConfirmationUrl}'>link</a>"
-                        );
+                    var editors = _userManager.Users.Where(u => u.Role == "Editor"|| u.Role=="Admin").ToList();
+                    foreach(var editor in editors)
+                    {
+                        var mailData = new MailData(to: new List<string> { editor.Email }, subject: "Подтверждение",
+                            body: $"Новый пользователь бы зарегистрирован. Просьба проверить и активировать учетку.</br>" +
+                            $"<a href='http://127.0.0.1:5173/users/edit/{user.Id}'>Ссылка</a>"
+                            );
 
-                    bool emailResult = await _mail.SendAsync(mailData, new CancellationToken());
+                        bool emailResult = await _mail.SendAsync(mailData, new CancellationToken());
+                    }
+
+
 
                 }
             }
@@ -218,10 +213,10 @@ namespace SSM.Backend.Repository
         public async Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user)
         {
             string token =  await _userManager.GeneratePasswordResetTokenAsync(user);
-            var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+            //var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
             var mailData = new MailData(to: new List<string> { user.Email }, subject: "Password Reset",
-                body: $"Your reset token is: {encodedToken}"
+                body: $"Токен для изменения пароля: {token}"
                 );
 
             bool emailResult = await _mail.SendAsync(mailData, new CancellationToken());
@@ -230,7 +225,8 @@ namespace SSM.Backend.Repository
 
         public async Task<IdentityResult> ResetPasswordAsync(ApplicationUser user, string token, string newPassword)
         {
-            return await _userManager.ResetPasswordAsync(user, token, newPassword);
+            var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+            return result;
         }
 
         public async Task<List<ApplicationUser>> GetAllAsync(int _start = 0, int _end = 25, string? filterMain = "", string? filterAuto = "")
