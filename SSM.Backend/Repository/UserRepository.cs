@@ -14,6 +14,7 @@ using System;
 using System.Security.Policy;
 using Amazon.Runtime.Internal.Endpoints.StandardLibrary;
 using Microsoft.AspNetCore.WebUtilities;
+using MongoDB.Bson;
 
 namespace SSM.Backend.Repository
 {
@@ -113,6 +114,54 @@ namespace SSM.Backend.Repository
             return result;
         }
 
+        public async Task<IdentityResult> RegisterByCreateAsync(RegistrationByCreateDTO registrationByCreateDTO)
+        {
+            ApplicationUser user = new()
+            {
+                UserName = registrationByCreateDTO.Email,
+                Email = registrationByCreateDTO.Email,
+                NormalizedEmail = registrationByCreateDTO.Email.ToUpper(),
+                FirstName = char.ToUpper(registrationByCreateDTO.FirstName[0]) + registrationByCreateDTO.FirstName.Substring(1).ToLower(),
+                LastName = char.ToUpper(registrationByCreateDTO.LastName[0]) + registrationByCreateDTO.LastName.Substring(1).ToLower(),
+                MiddleName = char.ToUpper(registrationByCreateDTO.MiddleName[0]) + registrationByCreateDTO.MiddleName.Substring(1).ToLower(),
+                IIN = registrationByCreateDTO.IIN,
+                Department = registrationByCreateDTO.Department,
+                Image = registrationByCreateDTO.Image,
+                EmailConfirmed = registrationByCreateDTO.EmailConfirmed,
+                Role = registrationByCreateDTO.Role
+            };
+
+            IdentityResult result = null;
+            try
+            {
+
+                var randomPass = GenerateRandomPassword(10);
+                result = await _userManager.CreateAsync(user, randomPass);
+                if (result.Succeeded)
+                {
+
+
+                    // Add token to verify email
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+                    var mailData = new MailData(to: new List<string> { user.Email }, subject: "SSM",
+                        body: $"Вам создана учетная запись на портале SSM <br/>" +
+                        $"Учетная запись: {user.Email} </br>" +
+                        $"Пароль: {randomPass}<br/>" +
+                        $"При необходимости смените пароль"
+                        );
+
+                    bool emailResult = await _mail.SendAsync(mailData, new CancellationToken());
+
+                }
+            }
+            catch (Exception e)
+            {
+            }
+            return result;
+        }
+
         public async Task<LoginResponseDTO> LoginAsync(LoginRequestDTO loginRequestDTO)
         {
             var response = new LoginResponseDTO()
@@ -131,7 +180,7 @@ namespace SSM.Backend.Repository
                 }
 
                 //if user was found generate JWT Token
-                var roles = await _userManager.GetRolesAsync(appUser);
+                //var roles = await _userManager.GetRolesAsync(appUser);
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var key = Encoding.ASCII.GetBytes(secretKey);
 
@@ -140,7 +189,7 @@ namespace SSM.Backend.Repository
                     Subject = new ClaimsIdentity(new Claim[]
                     {
                     new Claim(ClaimTypes.Name, appUser.UserName.ToString()),
-                    new Claim(ClaimTypes.Role, roles.FirstOrDefault())
+                    new Claim(ClaimTypes.Role, appUser.Role)
                     }),
                     Expires = DateTime.UtcNow.AddDays(7),
                     SigningCredentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -184,13 +233,24 @@ namespace SSM.Backend.Repository
             return await _userManager.ResetPasswordAsync(user, token, newPassword);
         }
 
-        public async Task<List<ApplicationUser>> GetAllAsync(int _start = 0, int _end = 1)
+        public async Task<List<ApplicationUser>> GetAllAsync(int _start = 0, int _end = 25, string? filterMain = "", string? filterAuto = "")
         {
             if (_end > 100)
             {
                 _end = 100;
             }
-            var users = _userManager.Users.Skip(_start).Take(_end);
+            var filters = string.Empty;
+            if (filterMain != string.Empty)
+            {
+                string[] array = filterMain.Split('=');
+                filters = array[1];
+            }
+            if (filterAuto != string.Empty)
+            {
+                string[] array = filterAuto.Split('=');
+                filters = array[1];
+            }
+            var users = _userManager.Users.Where(u=>u.LastName.ToUpper().Contains(filters.ToUpper())).Skip(_start).Take(_end);
             return users.ToList();
         }
 
@@ -201,8 +261,52 @@ namespace SSM.Backend.Repository
         }
         public async Task<IdentityResult> UpdateAsync(string id, ApplicationUser entity)
         {
-            var result = await _userManager.UpdateAsync(entity);
+            var user = await _userManager.FindByIdAsync(id);
+            user.LastName = entity.LastName;
+            user.FirstName = entity.FirstName;
+            user.MiddleName = entity.MiddleName;
+            user.IIN = entity.IIN;
+            user.Department=entity.Department;
+            user.Image= entity.Image;
+            user.Role=entity.Role;
+            user.EmailConfirmed=entity.EmailConfirmed;
+            var result = await _userManager.UpdateAsync(user);
             return result;
+        }
+        string GenerateRandomPassword(int length)
+        {
+            const string lowercaseLetters = "abcdefghijklmnopqrstuvwxyz";
+            const string uppercaseLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const string digits = "0123456789";
+            const string specialChars = "!@#$%^&*()_-+=<>?";
+
+            string validChars = lowercaseLetters + uppercaseLetters + digits + specialChars;
+
+            Random random = new Random();
+            char[] password = new char[length];
+
+            // Choose a random lowercase letter
+            password[0] = lowercaseLetters[random.Next(lowercaseLetters.Length)];
+
+            // Choose a random uppercase letter
+            password[1] = uppercaseLetters[random.Next(uppercaseLetters.Length)];
+
+            // Fill the rest of the password with random characters
+            for (int i = 2; i < length; i++)
+            {
+                password[i] = validChars[random.Next(validChars.Length)];
+            }
+
+            // Shuffle the password to ensure randomness
+            for (int i = length - 1; i > 0; i--)
+            {
+                int j = random.Next(i + 1);
+                char temp = password[i];
+                password[i] = password[j];
+                password[j] = temp;
+            }
+
+            return new string(password);
         }
     }
 }

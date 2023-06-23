@@ -12,5 +12,6 @@ namespace SSM.Backend.Models
         public string IIN { get; set; }
         public Department Department { get; set; }
         public string Image { get; set; }
+        public string Role { get; set; }
     }
 }

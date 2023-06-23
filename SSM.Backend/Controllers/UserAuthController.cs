@@ -44,6 +44,21 @@ namespace SSM.Backend.Controllers
             }
             return Ok(result);
         }
+        [HttpPost]
+        public async Task<IActionResult> RegisterByCreateAsync([FromBody] RegistrationByCreateDTO model)
+        {
+            bool ifUserNameUnique = await _userRepo.IsUniqueUserAsync(model.Email);
+            if (!ifUserNameUnique)
+            {
+                return BadRequest(new { message = "Current user already exists" });
+            }
+            var result = await _userRepo.RegisterByCreateAsync(model);
+            if (result == null)
+            {
+                return BadRequest(new { message = "Cannot register user" });
+            }
+            return Ok(result);
+        }
 
 
         [HttpPost("Login")]
@@ -148,13 +163,15 @@ namespace SSM.Backend.Controllers
 
         [HttpGet]
         //[Authorize]
-        public async Task<List<UserDTO>> GetUsers(int _start=0, int _end=25)
+        public async Task<List<UserDTO>> GetUsers(int _start=0, int _end=25, string? undefined = "", string? title_like = "")
         {
-            return _mapper.Map<List<UserDTO>>(await _userRepo.GetAllAsync(_start,_end));
+            string nameFilter = undefined == string.Empty ? "" : $"Name={undefined}";
+            string titleFilter = title_like == string.Empty ? "" : $"Name={title_like}";
+            return _mapper.Map<List<UserDTO>>(await _userRepo.GetAllAsync(_start,_end, nameFilter, titleFilter));
         }
 
         [HttpGet("{id:length(36)}",Name ="GetUser")]
-        [Authorize]
+        //[Authorize]
         public async Task<ActionResult<UserDTO>> GetUser(string id)
         {
             var user= await _userRepo.GetUserAsync(id);
@@ -166,7 +183,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpPatch("{id:length(36)}")]
-        [Authorize]
+        //[Authorize]
         public async Task<ActionResult<UserDTO>> UpdateAsync(string id, [FromBody] UserDTO userDTO)
         {
             try
