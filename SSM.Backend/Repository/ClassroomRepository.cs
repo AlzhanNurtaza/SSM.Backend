@@ -20,17 +20,17 @@ namespace SSM.Backend.Repository
                 _end = 100;
             }
             var filters = Builders<Classroom>.Filter.Empty;
-            if (filterMain != string.Empty)
+            if (filterMain != null && filterMain != string.Empty)
             {
                 string[] array = filterMain.Split('=');
                 filters &= Builders<Classroom>.Filter.Regex(array[0], new BsonRegularExpression($".*{array[1]}.*", "i"));
             }
-            if (filterAuto != string.Empty)
+            if (filterAuto != null && filterAuto != string.Empty)
             {
                 string[] array = filterAuto.Split('=');
                 filters &= Builders<Classroom>.Filter.Regex(array[0], new BsonRegularExpression($".*{array[1]}.*", "i"));
             }
-            if (filterFrontEnd != string.Empty)
+            if (filterFrontEnd!=null && filterFrontEnd != string.Empty)
             {
                 string[] array = filterFrontEnd.Split(' ');
                 filters &= Builders<Classroom>.Filter.Regex("Name", new BsonRegularExpression($".*{array[2].Replace("'","")}.*", "i"));
