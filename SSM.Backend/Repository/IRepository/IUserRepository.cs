@@ -18,5 +18,6 @@ namespace SSM.Backend.Repository.IRepository
         Task<ApplicationUser> GetUserAsync(string id);
 
         Task<IdentityResult> UpdateAsync(string id, ApplicationUser entity);
+        Task DeleteAsync(string id);
     }
 }

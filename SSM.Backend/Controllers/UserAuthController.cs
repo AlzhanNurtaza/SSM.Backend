@@ -200,6 +200,24 @@ namespace SSM.Backend.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+        [HttpDelete("{id:length(36)}")]
+        //[Authorize(Roles = "Admin,Editor")]
+        public async Task<IActionResult> DeleteAsync(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                {
+                    return BadRequest(new { message = "id cannot be empty or null" });
+                }
+                await _userRepo.DeleteAsync(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
     }
  }

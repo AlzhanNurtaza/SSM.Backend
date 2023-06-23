@@ -304,5 +304,15 @@ namespace SSM.Backend.Repository
 
             return new string(password);
         }
+
+        public async Task DeleteAsync(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user != null)
+            {
+                await _userManager.DeleteAsync(user);
+            }
+            
+        }
     }
 }
