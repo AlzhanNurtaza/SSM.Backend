@@ -15,6 +15,8 @@ using System.Security.Policy;
 using Amazon.Runtime.Internal.Endpoints.StandardLibrary;
 using Microsoft.AspNetCore.WebUtilities;
 using MongoDB.Bson;
+using static MongoDB.Driver.WriteConcern;
+using System.Linq.Expressions;
 
 namespace SSM.Backend.Repository
 {
@@ -26,8 +28,9 @@ namespace SSM.Backend.Repository
         private string secretKey;
         private readonly IMapper _mapper;
         private readonly IMailService _mail;
+        private readonly IMongoCollection<ApplicationUser> _collection;
         public UserRepository(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IMapper mapper
-            , SignInManager<ApplicationUser> signInManager, IConfiguration configuration, IMailService mail)
+            , SignInManager<ApplicationUser> signInManager, IConfiguration configuration, IMailService mail, IMongoDatabase db)
         {
             _userManager = userManager;
             _roleManager = roleManager;
@@ -35,6 +38,7 @@ namespace SSM.Backend.Repository
             _signInManager = signInManager;
             secretKey = configuration.GetValue<string>("ApiSettings:Secret") ?? string.Empty;
             _mail = mail;
+            _collection = db.GetCollection<ApplicationUser>("User");
         }
 
         public async Task<bool> IsUniqueUserAsync(string email)
@@ -229,25 +233,31 @@ namespace SSM.Backend.Repository
             return result;
         }
 
-        public async Task<List<ApplicationUser>> GetAllAsync(int _start = 0, int _end = 25, string? filterMain = "", string? filterAuto = "")
+        public async Task<List<ApplicationUser>> GetAllAsync(int _start = 0, int _end = 25, string? filterMain = "", string? filterAuto = "", string? role = "")
         {
             if (_end > 100)
             {
                 _end = 100;
             }
-            var filters = string.Empty;
+            var filters = Builders<ApplicationUser>.Filter.Empty;
             if (filterMain != string.Empty)
             {
                 string[] array = filterMain.Split('=');
-                filters = array[1];
+                filters = Builders<ApplicationUser>.Filter.Regex("LastName", new BsonRegularExpression($".*{array[1]}.*", "i"));
             }
             if (filterAuto != string.Empty)
             {
                 string[] array = filterAuto.Split('=');
-                filters = array[1];
+                filters = Builders<ApplicationUser>.Filter.Regex("LastName", new BsonRegularExpression($".*{array[1]}.*", "i"));
             }
-            var users = _userManager.Users.Where(u=>u.LastName.ToUpper().Contains(filters.ToUpper())).Skip(_start).Take(_end);
-            return users.ToList();
+            if (role!=string.Empty)
+            {
+                filters &= Builders<ApplicationUser>.Filter.Regex("Role", new BsonRegularExpression($".*{role}.*", "i"));
+            }
+
+            
+            var users = await _collection.Find(filters).Skip(_start).Limit(_end).ToListAsync();
+            return users;
         }
 
         public async Task<ApplicationUser> GetUserAsync(string id)

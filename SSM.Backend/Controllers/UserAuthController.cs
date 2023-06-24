@@ -163,11 +163,11 @@ namespace SSM.Backend.Controllers
 
         [HttpGet]
         //[Authorize]
-        public async Task<List<UserDTO>> GetUsers(int _start=0, int _end=25, string? undefined = "", string? title_like = "")
+        public async Task<List<UserDTO>> GetUsers(int _start=0, int _end=25, string? undefined = "", string? title_like = "",string? role="")
         {
             string nameFilter = undefined == string.Empty ? "" : $"Name={undefined}";
             string titleFilter = title_like == string.Empty ? "" : $"Name={title_like}";
-            return _mapper.Map<List<UserDTO>>(await _userRepo.GetAllAsync(_start,_end, nameFilter, titleFilter));
+            return _mapper.Map<List<UserDTO>>(await _userRepo.GetAllAsync(_start,_end, nameFilter, titleFilter,role));
         }
 
         [HttpGet("{id:length(36)}",Name ="GetUser")]
