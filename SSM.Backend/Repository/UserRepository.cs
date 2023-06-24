@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using MongoDB.Bson;
 using static MongoDB.Driver.WriteConcern;
 using System.Linq.Expressions;
+using System.Data;
 
 namespace SSM.Backend.Repository
 {
@@ -86,6 +87,8 @@ namespace SSM.Backend.Repository
                 result = await _userManager.CreateAsync(user, registerationRequestDTO.Password);
                 if (result.Succeeded)
                 {
+          
+                    await _userManager.AddToRoleAsync(user, user.Role);
 
                     // Add token to verify email
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -139,7 +142,7 @@ namespace SSM.Backend.Repository
                 if (result.Succeeded)
                 {
 
-
+                    await _userManager.AddToRoleAsync(user, registrationByCreateDTO.Role);
                     // Add token to verify email
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
@@ -276,6 +279,10 @@ namespace SSM.Backend.Repository
             user.Image= entity.Image;
             user.Role=entity.Role;
             user.EmailConfirmed=entity.EmailConfirmed;
+
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            await _userManager.RemoveFromRolesAsync(user, currentRoles.ToArray());
+            await _userManager.AddToRoleAsync(user,entity.Role);
             var result = await _userManager.UpdateAsync(user);
             return result;
         }
