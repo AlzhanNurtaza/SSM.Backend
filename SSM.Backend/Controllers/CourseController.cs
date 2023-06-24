@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SSM.Backend.Models.Dto;
 using SSM.Backend.Models;
 using SSM.Backend.Repository.IRepository;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SSM.Backend.Controllers
 {
@@ -20,6 +21,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<List<Course>>> GetAllAsync(int _start, int _end, string? name_like = "")
         {
             try
@@ -38,7 +40,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpPost]
-        //[Authorize(Roles = "Admin,Editor")]
+        [Authorize]
         public async Task<ActionResult<Course>> CreateAsync([FromBody] CourseCreateDTO courseDTO)
         {
             try
@@ -57,6 +59,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpGet("{id:length(24)}", Name = "GetCourse")]
+        [Authorize]
         public async Task<ActionResult<CourseDTO>> GetAsync(string id)
         {
             try
@@ -70,7 +73,7 @@ namespace SSM.Backend.Controllers
             }
         }
         [HttpPatch("{id:length(24)}")]
-        //[Authorize(Roles = "Admin,Editor")]
+        [Authorize]
         public async Task<ActionResult<CourseDTO>> UpdateAsync(string id, [FromBody] CourseDTO courseDTO)
         {
             try
@@ -89,7 +92,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpDelete("{id:length(24)}")]
-        //[Authorize(Roles = "Admin,Editor")]
+        [Authorize]
         public async Task<IActionResult> DeleteAsync(string id)
         {
             try

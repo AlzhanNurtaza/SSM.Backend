@@ -30,6 +30,7 @@ namespace SSM.Backend.Controllers
 
 
         [HttpPost, HttpPut, HttpDelete]
+        [Authorize]
         public async Task<IActionResult> Batch([FromBody] ScheduleParam param)
         {
            if (param.action == "insert" || (param.action == "batch" && param.added.Count > 0))

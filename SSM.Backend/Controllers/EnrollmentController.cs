@@ -21,7 +21,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpPost]
-        //[Authorize(Roles = "Admin,Editor")]
+        [Authorize]
         public async Task<ActionResult<EnrollmentDTO>> CreateAsync([FromBody] EnrollmentCreateDTO createDTO)
         {
             try
@@ -44,6 +44,7 @@ namespace SSM.Backend.Controllers
             }
         }
         [HttpGet("{id:length(24)}")]
+        [Authorize]
         public async Task<ActionResult<EnrollmentDTO>> GetAsync(string id)
         {
             try
@@ -58,6 +59,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<List<EnrollmentDTO>>> GetAllAsync(int _start, int _end, string? name_like = "",string? title_like="")
         {
             try
@@ -77,7 +79,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpPatch("{id:length(24)}")]
-        //[Authorize(Roles = "Admin,Editor")]
+        [Authorize]
         public async Task<ActionResult<GroupDTO>> UpdateAsync(string id, [FromBody] EnrollmentDTO dataDTO)
         {
             try
@@ -101,7 +103,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpDelete("{id:length(24)}")]
-        //[Authorize(Roles = "Admin,Editor")]
+        [Authorize]
         public async Task<IActionResult> DeleteAsync(string id)
         {
             try

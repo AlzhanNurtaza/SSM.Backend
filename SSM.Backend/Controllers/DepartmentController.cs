@@ -20,7 +20,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpPost]
-        //[Authorize(Roles = "Admin,Editor")]
+        [Authorize]
         public async Task<ActionResult<Department>> CreateAsync([FromBody] DepartmentCreateDTO createDTO)
         {
             try
@@ -71,7 +71,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpPatch("{id:length(24)}")]
-        //[Authorize(Roles = "Admin,Editor")]
+        [Authorize]
         public async Task<ActionResult<DepartmentDTO>> UpdateAsync(string id, [FromBody] DepartmentDTO dataDTO)
         {
             try
@@ -90,7 +90,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpDelete("{id:length(24)}")]
-        //[Authorize(Roles = "Admin,Editor")]
+        [Authorize]
         public async Task<IActionResult> DeleteDepartmentAsync(string id)
         {
             try

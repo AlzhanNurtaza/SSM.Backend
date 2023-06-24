@@ -45,6 +45,7 @@ namespace SSM.Backend.Controllers
             return Ok(result);
         }
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> RegisterByCreateAsync([FromBody] RegistrationByCreateDTO model)
         {
             bool ifUserNameUnique = await _userRepo.IsUniqueUserAsync(model.Email);
@@ -73,7 +74,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpPost("CreateRole")]
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         public async Task<IActionResult> CreateRoleAsync(string roleName)
         {
             try
@@ -162,7 +163,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpGet]
-        //[Authorize]
+        [Authorize]
         public async Task<List<UserDTO>> GetUsers(int _start=0, int _end=25, string? undefined = "", string? title_like = "",string? role="")
         {
             string nameFilter = undefined == string.Empty ? "" : $"Name={undefined}";
@@ -171,7 +172,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpGet("{id:length(36)}",Name ="GetUser")]
-        //[Authorize]
+        [Authorize]
         public async Task<ActionResult<UserDTO>> GetUser(string id)
         {
             var user= await _userRepo.GetUserAsync(id);
@@ -183,7 +184,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpPatch("{id:length(36)}")]
-        //[Authorize]
+        [Authorize]
         public async Task<ActionResult<UserDTO>> UpdateAsync(string id, [FromBody] UserDTO userDTO)
         {
             try
@@ -201,7 +202,7 @@ namespace SSM.Backend.Controllers
             }
         }
         [HttpDelete("{id:length(36)}")]
-        //[Authorize(Roles = "Admin,Editor")]
+        [Authorize]
         public async Task<IActionResult> DeleteAsync(string id)
         {
             try

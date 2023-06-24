@@ -20,7 +20,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpPost]
-        //[Authorize(Roles = "Admin,Editor")]
+        [Authorize]
         public async Task<ActionResult<Classroom>> CreateAsync([FromBody] ClassroomCreateDTO createDTO)
         {
             try
@@ -43,6 +43,7 @@ namespace SSM.Backend.Controllers
             }
         }
         [HttpGet("{id:length(24)}")]
+        [Authorize]
         public async Task<ActionResult<ClassroomDTO>> GetAsync(string id)
         {
             try
@@ -57,6 +58,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<List<ClassroomDTO>>> GetAllAsync(int _start, int _end, [FromQuery(Name = "$filter")] string? filter,string? name_like = "",string? title_like="")
         {
             try
@@ -76,7 +78,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpPatch("{id:length(24)}")]
-        //[Authorize(Roles = "Admin,Editor")]
+        [Authorize]
         public async Task<ActionResult<ClassroomDTO>> UpdateAsync(string id, [FromBody] ClassroomDTO dataDTO)
         {
             try
@@ -100,7 +102,7 @@ namespace SSM.Backend.Controllers
         }
 
         [HttpDelete("{id:length(24)}")]
-        //[Authorize(Roles = "Admin,Editor")]
+        [Authorize]
         public async Task<IActionResult> DeleteAsync(string id)
         {
             try

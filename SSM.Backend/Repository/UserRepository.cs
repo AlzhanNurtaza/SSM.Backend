@@ -137,7 +137,7 @@ namespace SSM.Backend.Repository
             try
             {
 
-                var randomPass = GenerateRandomPassword(10);
+                var randomPass = GenerateRandomPassword(7) + "2023!QA";
                 result = await _userManager.CreateAsync(user, randomPass);
                 if (result.Succeeded)
                 {
