@@ -159,7 +159,11 @@ namespace SSM.Backend.Controllers
 
             // Reset password using password reset token
             var resetResult = await _userRepo.ResetPasswordAsync(user, passwordResetModel.Token, passwordResetModel.Password);
-            return Ok(resetResult);
+            if(resetResult.Succeeded)
+            {
+                return Ok(resetResult);
+            }
+            return BadRequest(new { error = "Password must be stronger" });
         }
 
         [HttpGet]
