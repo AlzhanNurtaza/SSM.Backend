@@ -13,7 +13,7 @@ namespace SSM.Backend.Repository
             _db = db.GetCollection<Classroom>(typeof(Classroom).Name);
         }
 
-        public async Task<List<Classroom>> GetAllClassroomsAsync(int _start = 0, int _end = 100, string? filterFrontEnd = "", string? filterMain = "", string? filterAuto = "")
+        public async Task<List<Classroom>> GetAllClassroomsAsync(int _start = 0, int _end = 100, string? filterFrontEnd = "", string? filterMain = "")
         {
             if (_end > 100)
             {
@@ -23,11 +23,6 @@ namespace SSM.Backend.Repository
             if (filterMain != null && filterMain != string.Empty)
             {
                 string[] array = filterMain.Split('=');
-                filters &= Builders<Classroom>.Filter.Regex(array[0], new BsonRegularExpression($".*{array[1]}.*", "i"));
-            }
-            if (filterAuto != null && filterAuto != string.Empty)
-            {
-                string[] array = filterAuto.Split('=');
                 filters &= Builders<Classroom>.Filter.Regex(array[0], new BsonRegularExpression($".*{array[1]}.*", "i"));
             }
             if (filterFrontEnd!=null && filterFrontEnd != string.Empty)

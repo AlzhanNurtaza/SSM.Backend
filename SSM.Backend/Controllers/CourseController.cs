@@ -22,12 +22,13 @@ namespace SSM.Backend.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<ActionResult<List<Course>>> GetAllAsync(int _start, int _end, string? name_like = "")
+        public async Task<ActionResult<List<Course>>> GetAllAsync(int _start, int _end, string? undefined = "",string? title_like="")
         {
             try
             {
-                string filter = name_like == string.Empty ? "" : $"Name={name_like}";
-                List<Course> courses = await _db.GetAllAsync(_start: _start, _end: _end, filter);
+                string filter = undefined!=string.Empty ? "Name=" + undefined: string.Empty;
+                string filterTitle = title_like != string.Empty ? "Name=" + title_like : string.Empty;
+                List<Course> courses = await _db.GetAllAsync(_start: _start, _end: _end, filter,filterTitle);
                 long total = await _db.GetCount();
                 Response.Headers.Add("x-total-count", $"{total}");
                 Response.Headers.Add("Access-Control-Expose-Headers", "x-total-count");

@@ -30,24 +30,23 @@ namespace SSM.Backend.Repository
             return result;
         }
 
-        public async Task<List<T>> GetAllAsync(int _start = 0, int _end = 25, string? filterMain="", string? filterAuto = "")
+        public async Task<List<T>> GetAllAsync(int _start = 0, int _end = 25, string? filter= "", string? filterTitle = "")
         {
             if(_end > 100)
             {
                 _end = 100;
             }
             var filters = Builders<T>.Filter.Empty;
-            if (filterMain!= string.Empty)
+            if (filter != string.Empty)
             {
-                string[] array = filterMain.Split('=');
+                string[] array = filter.Split('=');
                 filters = Builders<T>.Filter.Regex(array[0], new BsonRegularExpression($".*{array[1]}.*", "i"));
             }
-            if (filterAuto != string.Empty)
+            if (filterTitle != string.Empty)
             {
-                string[] array = filterAuto.Split('=');
+                string[] array = filterTitle.Split('=');
                 filters = Builders<T>.Filter.Regex(array[0], new BsonRegularExpression($".*{array[1]}.*", "i"));
             }
-
             return await _collection.Find(filters).Skip(_start).Limit(_end).ToListAsync();
         }
 
