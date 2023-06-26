@@ -35,5 +35,16 @@ namespace SSM.Backend.Repository
             
             return await _db.Find(filter).ToListAsync();
         }
+
+        public async Task<bool> isEnrollmentNewInSchedule(string id)
+        {
+            var filter = Builders<Schedule>.Filter.Eq("EnrollmentId", id);
+            var result = _db.Find(filter).ToList();
+            if(result.Count > 0)
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }
