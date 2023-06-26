@@ -10,5 +10,6 @@
         public DateTime EndDate { get; set; }
         public int Term { get; set; }
         public string Name { get; set; }
+        public int StudyCount { get; set; }
     }
 }
